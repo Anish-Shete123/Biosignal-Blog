@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
     :root {
       --bg: #f7f5f0;
       --ink: #1a1a18;
@@ -19,7 +19,7 @@
       --serif: 'DM Serif Display', Georgia, serif;
       --sans: 'DM Sans', sans-serif;
     }
- 
+
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
@@ -29,7 +29,7 @@
       line-height: 1.7;
       font-weight: 300;
     }
- 
+
     /* ── NAV ── */
     nav {
       position: sticky; top: 0; z-index: 100;
@@ -52,11 +52,11 @@
       text-transform: uppercase; transition: color 0.2s; cursor: pointer;
     }
     .nav-links a:hover, .nav-links a.active { color: var(--ink); }
- 
+
     /* ── SECTIONS ── */
     section { display: none; }
     section.active { display: block; }
- 
+
     /* ── HERO ── */
     .hero-wrap {
       min-height: calc(100vh - 64px);
@@ -96,7 +96,7 @@
     .btn-outline:hover { border-color: var(--ink); }
     .btn-accent { background: var(--accent); color: var(--white); }
     .btn-accent:hover { background: var(--ink); }
- 
+
     .hero-deco {
       position: absolute; right: 5vw; top: 50%; transform: translateY(-50%);
       opacity: 0.06; pointer-events: none;
@@ -104,7 +104,7 @@
       line-height: 1; color: var(--ink); user-select: none;
       animation: fadeUp 1s 0.3s forwards;
     }
- 
+
     /* ── SHARED SECTION HEADER ── */
     .section-header {
       padding: 5rem 5vw 2.5rem;
@@ -119,7 +119,7 @@
       font-family: var(--serif); font-size: 2.2rem;
       letter-spacing: -0.02em; margin-top: 0.4rem;
     }
- 
+
     /* ── PROJECTS ── */
     .projects-list { padding: 0 5vw; }
     .project-item {
@@ -145,10 +145,10 @@
       padding: 0.3rem 0.8rem; border-radius: 2px; align-self: center;
     }
     .status-complete { background: var(--accent-light); color: var(--accent); }
- 
+
     /* ── POSTS ── */
     .posts-list { padding: 0 5vw; }
- 
+
     .post-list-item {
       display: flex; align-items: flex-start; justify-content: space-between;
       gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--border);
@@ -167,13 +167,27 @@
     .post-list-excerpt { color: var(--muted); font-size: 0.88rem; max-width: 560px; }
     .post-list-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; }
     .post-list-arrow { font-size: 1.2rem; color: var(--accent); align-self: center; }
- 
+    .post-list-actions { display: flex; align-items: center; gap: 1rem; }
+    .btn-delete {
+      background: none; border: none; cursor: pointer;
+      font-size: 1rem; color: var(--border); padding: 0.3rem;
+      transition: color 0.2s; line-height: 1;
+    }
+    .btn-delete:hover { color: #e53935; }
+    .post-list-actions { display: flex; align-items: center; gap: 1rem; }
+    .post-delete-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.1rem; color: var(--border); padding: 0.3rem;
+      transition: color 0.2s; line-height: 1;
+    }
+    .post-delete-btn:hover { color: #e53935; }
+
     .posts-empty {
       padding: 5rem 5vw; text-align: center; color: var(--muted);
     }
     .posts-empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
     .posts-empty h3 { font-family: var(--serif); font-size: 1.5rem; color: var(--ink); margin-bottom: 0.5rem; }
- 
+
     /* Add post form */
     .post-form-wrap {
       display: none; padding: 3rem 5vw;
@@ -201,7 +215,7 @@
     .form-field textarea { resize: vertical; min-height: 200px; line-height: 1.6; }
     .form-field.full { grid-column: 1 / -1; }
     .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
- 
+
     /* Single post view */
     .post-single { display: none; padding: 4rem 5vw; max-width: 760px; margin: 0 auto; }
     .post-single.open { display: block; }
@@ -224,7 +238,7 @@
       padding-bottom: 2rem; border-bottom: 1px solid var(--border);
     }
     .post-single-body { font-size: 1rem; line-height: 1.85; color: var(--ink); white-space: pre-wrap; }
- 
+
     /* ── ABOUT ── */
     .about-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
     .about-visual {
@@ -253,7 +267,7 @@
       font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
       text-transform: uppercase; border-radius: 2px;
     }
- 
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border); padding: 2.5rem 5vw;
@@ -262,13 +276,13 @@
     .footer-logo { font-family: var(--serif); font-size: 1.1rem; }
     .footer-logo span { color: var(--accent); }
     .footer-copy { font-size: 0.78rem; color: var(--muted); }
- 
+
     /* ── ANIMATIONS ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
- 
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .hero-deco { display: none; }
@@ -282,7 +296,7 @@
   </style>
 </head>
 <body>
- 
+
 <!-- NAV -->
 <nav>
   <span class="nav-logo" onclick="show('home')">Bio<span>Signal</span></span>
@@ -292,7 +306,7 @@
     <li><a onclick="show('about')" id="nav-about">About</a></li>
   </ul>
 </nav>
- 
+
 <!-- ══════════════ HOME ══════════════ -->
 <section id="home" class="active">
   <div class="hero-wrap">
@@ -305,7 +319,7 @@
       <button class="btn btn-outline" onclick="show('about')">About Me</button>
     </div>
   </div>
- 
+
   <!-- Projects displayed directly on home -->
   <div>
     <div class="section-header">
@@ -315,7 +329,7 @@
       </div>
     </div>
     <div class="projects-list">
- 
+
       <div class="project-item">
         <span class="project-num">01</span>
         <div>
@@ -328,7 +342,7 @@
         </div>
         <span class="project-status status-complete">Nov – Dec 2025</span>
       </div>
- 
+
       <div class="project-item">
         <span class="project-num">02</span>
         <div>
@@ -341,7 +355,7 @@
         </div>
         <span class="project-status status-complete">Oct – Nov 2025</span>
       </div>
- 
+
       <div class="project-item">
         <span class="project-num">03</span>
         <div>
@@ -354,27 +368,50 @@
         </div>
         <span class="project-status status-complete">Sep – Oct 2025</span>
       </div>
- 
+
     </div>
   </div>
- 
+
   <footer style="margin-top:3rem;">
     <span class="footer-logo">Bio<span>Signal</span></span>
     <span class="footer-copy">© 2026 Anish · Biomedical Engineering, Drexel University</span>
   </footer>
 </section>
- 
+
 <!-- ══════════════ POSTS ══════════════ -->
 <section id="posts">
- 
+
   <div class="section-header" id="postsHeader">
     <div>
       <p class="section-label">Writing</p>
       <h2 class="section-title">Posts</h2>
     </div>
-    <button class="btn btn-accent" onclick="toggleForm()">+ New Post</button>
+    <div style="display:flex; gap:0.75rem; align-items:center;">
+      <div id="adminControls" style="display:none; gap:0.75rem; align-items:center;">
+        <button class="btn btn-accent" onclick="toggleForm()">+ New Post</button>
+        <button class="btn btn-outline" onclick="adminLogout()" style="font-size:0.75rem; padding:0.5rem 1rem; color:var(--muted);">Log Out</button>
+      </div>
+      <button class="btn btn-outline" id="adminLoginBtn" onclick="showLoginModal()" style="font-size:0.75rem; padding:0.5rem 1rem; color:var(--muted);">Admin</button>
+    </div>
   </div>
- 
+
+  <!-- Login Modal -->
+  <div id="loginModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center;">
+    <div style="background:var(--white); padding:2.5rem; width:360px; border-radius:4px; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <h3 style="font-family:var(--serif); font-size:1.6rem; margin-bottom:0.4rem; letter-spacing:-0.02em;">Admin Login</h3>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.8rem;">Enter your password to manage posts.</p>
+      <div class="form-field" style="margin-bottom:1.2rem;">
+        <label>Password</label>
+        <input type="password" id="adminPasswordInput" placeholder="Enter password..." onkeydown="if(event.key==='Enter') checkLogin()"/>
+      </div>
+      <div id="loginError" style="display:none; color:#e53935; font-size:0.8rem; margin-bottom:1rem;">Incorrect password. Try again.</div>
+      <div style="display:flex; gap:0.75rem;">
+        <button class="btn btn-primary" onclick="checkLogin()">Log In</button>
+        <button class="btn btn-outline" onclick="hideLoginModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Write Post Form -->
   <div class="post-form-wrap" id="postForm">
     <h3 class="post-form-title">Write a New Post</h3>
@@ -401,7 +438,7 @@
       <button class="btn btn-outline" onclick="toggleForm()">Cancel</button>
     </div>
   </div>
- 
+
   <!-- Single Post Reading View -->
   <div class="post-single" id="postSingle">
     <span class="post-single-back" onclick="closePost()">← Back to Posts</span>
@@ -410,22 +447,22 @@
     <p class="post-single-meta" id="singleMeta"></p>
     <div class="post-single-body" id="singleBody"></div>
   </div>
- 
+
   <!-- Posts List -->
   <div class="posts-list" id="postsList">
     <div class="posts-empty" id="postsEmpty">
       <div class="posts-empty-icon">✍️</div>
       <h3>No posts yet</h3>
-      <p>Hit "+ New Post" above to publish your first post.</p>
+      <p>No posts have been published yet. Check back soon!</p>
     </div>
   </div>
- 
+
   <footer style="margin-top:3rem;" id="postsFooter">
     <span class="footer-logo">Bio<span>Signal</span></span>
     <span class="footer-copy">© 2026 Anish · Biomedical Engineering, Drexel University</span>
   </footer>
 </section>
- 
+
 <!-- ══════════════ ABOUT ══════════════ -->
 <section id="about">
   <div class="about-grid">
@@ -457,8 +494,44 @@
     <span class="footer-copy">© 2026 Anish · Biomedical Engineering, Drexel University</span>
   </footer>
 </section>
- 
+
 <script>
+  // ── Admin Auth ──
+  const ADMIN_PASSWORD = 'biosignal2026';
+  let isAdmin = false;
+
+  function showLoginModal() {
+    document.getElementById('loginModal').style.display = 'flex';
+    document.getElementById('adminPasswordInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    setTimeout(() => document.getElementById('adminPasswordInput').focus(), 50);
+  }
+
+  function hideLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+  }
+
+  function checkLogin() {
+    const pwd = document.getElementById('adminPasswordInput').value;
+    if (pwd === ADMIN_PASSWORD) {
+      isAdmin = true;
+      hideLoginModal();
+      document.getElementById('adminControls').style.display = 'flex';
+      document.getElementById('adminLoginBtn').style.display = 'none';
+      renderPosts(); // re-render to show delete buttons
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  function adminLogout() {
+    isAdmin = false;
+    document.getElementById('adminControls').style.display = 'none';
+    document.getElementById('adminLoginBtn').style.display = '';
+    document.getElementById('postForm').classList.remove('open');
+    renderPosts(); // re-render to hide delete buttons
+  }
+
   // ── Navigation ──
   function show(id) {
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
@@ -469,10 +542,10 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
     closePost();
   }
- 
+
   // ── Posts state ──
   let posts = [];
- 
+
   function toggleForm() {
     const form = document.getElementById('postForm');
     form.classList.toggle('open');
@@ -480,18 +553,18 @@
       setTimeout(() => form.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     }
   }
- 
+
   function submitPost() {
     const title   = document.getElementById('postTitle').value.trim();
     const tag     = document.getElementById('postTag').value.trim();
     const excerpt = document.getElementById('postExcerpt').value.trim();
     const body    = document.getElementById('postBody').value.trim();
- 
+
     if (!title || !body) {
       alert('Please add at least a title and content before publishing.');
       return;
     }
- 
+
     const post = {
       id: Date.now(),
       title,
@@ -500,29 +573,29 @@
       body,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     };
- 
+
     posts.unshift(post);
     renderPosts();
- 
+
     // Clear + close form
     ['postTitle','postTag','postExcerpt','postBody'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('postForm').classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
- 
+
   function renderPosts() {
     const list  = document.getElementById('postsList');
     const empty = document.getElementById('postsEmpty');
- 
+
     // Remove old rendered items (keep empty state div)
     list.querySelectorAll('.post-list-item').forEach(el => el.remove());
- 
+
     if (posts.length === 0) {
       empty.style.display = 'block';
       return;
     }
     empty.style.display = 'none';
- 
+
     posts.forEach(post => {
       const item = document.createElement('div');
       item.className = 'post-list-item';
@@ -533,22 +606,40 @@
           <p class="post-list-excerpt">${post.excerpt}</p>
           <p class="post-list-meta">${post.date}</p>
         </div>
-        <span class="post-list-arrow">→</span>
+        <div class="post-list-actions">
+          ${isAdmin ? `<button class="post-delete-btn" title="Delete post" data-id="${post.id}">🗑️</button>` : ''}
+          <span class="post-list-arrow">→</span>
+        </div>
       `;
-      item.onclick = () => openPost(post.id);
+      item.onclick = (e) => {
+        if (e.target.closest('.post-delete-btn')) return;
+        openPost(post.id);
+      };
+      if (isAdmin) {
+        item.querySelector('.post-delete-btn').onclick = (e) => {
+          e.stopPropagation();
+          deletePost(post.id);
+        };
+      }
       list.appendChild(item);
     });
   }
- 
+
+  function deletePost(id) {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    posts = posts.filter(p => p.id !== id);
+    renderPosts();
+  }
+
   function openPost(id) {
     const post = posts.find(p => p.id === id);
     if (!post) return;
- 
+
     document.getElementById('singleTag').textContent   = post.tag;
     document.getElementById('singleTitle').textContent = post.title;
     document.getElementById('singleMeta').textContent  = post.date;
     document.getElementById('singleBody').textContent  = post.body;
- 
+
     document.getElementById('postSingle').classList.add('open');
     document.getElementById('postsList').style.display    = 'none';
     document.getElementById('postsHeader').style.display  = 'none';
@@ -556,7 +647,7 @@
     document.getElementById('postsFooter').style.display  = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
- 
+
   function closePost() {
     document.getElementById('postSingle').classList.remove('open');
     document.getElementById('postsList').style.display    = '';
@@ -565,6 +656,6 @@
     document.getElementById('postsFooter').style.display  = '';
   }
 </script>
- 
+
 </body>
 </html>
