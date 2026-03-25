@@ -237,7 +237,7 @@
       font-size: 0.8rem; color: var(--muted); margin-bottom: 3rem;
       padding-bottom: 2rem; border-bottom: 1px solid var(--border);
     }
-    .post-single-body { font-size: 1rem; line-height: 1.85; color: var(--ink); white-space: pre-wrap; }
+    .post-single-body { font-size: 1rem; line-height: 1.85; color: var(--ink); }
 
     /* ── ABOUT ── */
     .about-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
@@ -282,6 +282,52 @@
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ── RICH EDITOR ── */
+    .editor-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem;
+      padding: 0.6rem 0.75rem; background: var(--bg);
+      border: 1px solid var(--border); border-bottom: none;
+      border-radius: 2px 2px 0 0;
+    }
+    .editor-toolbar select {
+      padding: 0.3rem 0.5rem; border: 1px solid var(--border);
+      background: var(--white); font-family: var(--sans); font-size: 0.8rem;
+      color: var(--ink); border-radius: 2px; cursor: pointer; outline: none;
+    }
+    .editor-toolbar select:focus { border-color: var(--accent); }
+    .toolbar-btn {
+      background: var(--white); border: 1px solid var(--border);
+      padding: 0.3rem 0.6rem; font-size: 0.85rem; cursor: pointer;
+      border-radius: 2px; color: var(--ink); line-height: 1;
+      transition: all 0.15s; font-family: var(--sans);
+    }
+    .toolbar-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    .toolbar-btn-img { color: var(--accent); font-size: 0.8rem; }
+    .toolbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 0.2rem; }
+    .rich-editor {
+      min-height: 220px; padding: 1rem;
+      border: 1px solid var(--border); border-radius: 0 0 2px 2px;
+      background: var(--white); font-family: var(--sans); font-size: 0.95rem;
+      color: var(--ink); line-height: 1.7; outline: none;
+    }
+    .rich-editor:focus { border-color: var(--accent); }
+    .rich-editor:empty:before {
+      content: attr(data-placeholder);
+      color: var(--muted); pointer-events: none;
+    }
+    .post-img-wrap {
+      display: block; position: relative; margin: 1rem 0;
+    }
+    .img-delete-btn {
+      display: inline-block; margin-top: 0.3rem;
+      background: #fee2e2; border: none; color: #e53935;
+      font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 2px;
+      cursor: pointer; font-family: var(--sans);
+    }
+    .img-delete-btn:hover { background: #e53935; color: white; }
+    /* post body rendered images */
+    .post-single-body img { max-width: 100%; border-radius: 4px; margin: 1rem 0; display: block; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
@@ -430,7 +476,40 @@
       </div>
       <div class="form-field full">
         <label>Post Content</label>
-        <textarea id="postBody" placeholder="Write your full post here..."></textarea>
+        <!-- Rich text toolbar -->
+        <div class="editor-toolbar">
+          <select onchange="execCmd('fontName', this.value); this.blur();" title="Font">
+            <option value="DM Sans, sans-serif">DM Sans</option>
+            <option value="DM Serif Display, serif">DM Serif</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Courier New, monospace">Courier New</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Times New Roman, serif">Times New Roman</option>
+          </select>
+          <select onchange="execCmd('fontSize', this.value); this.blur();" title="Size">
+            <option value="2">Small</option>
+            <option value="3" selected>Normal</option>
+            <option value="4">Large</option>
+            <option value="5">X-Large</option>
+            <option value="6">Huge</option>
+          </select>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" onclick="execCmd('bold')" title="Bold"><b>B</b></button>
+          <button type="button" class="toolbar-btn" onclick="execCmd('italic')" title="Italic"><i>I</i></button>
+          <button type="button" class="toolbar-btn" onclick="execCmd('underline')" title="Underline"><u>U</u></button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" onclick="execCmd('justifyLeft')" title="Align Left">&#8676;</button>
+          <button type="button" class="toolbar-btn" onclick="execCmd('justifyCenter')" title="Center">&#8596;</button>
+          <button type="button" class="toolbar-btn" onclick="execCmd('justifyRight')" title="Align Right">&#8677;</button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn" onclick="execCmd('insertUnorderedList')" title="Bullet List">&#8226; List</button>
+          <button type="button" class="toolbar-btn" onclick="execCmd('insertOrderedList')" title="Numbered List">1. List</button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="toolbar-btn toolbar-btn-img" onclick="triggerImageUpload()" title="Add Image">🖼 Image</button>
+          <input type="file" id="imageUploadInput" accept="image/*" style="display:none" onchange="insertImage(event)"/>
+        </div>
+        <!-- Editable content area -->
+        <div id="postBody" class="rich-editor" contenteditable="true" data-placeholder="Write your full post here..."></div>
       </div>
     </div>
     <div class="form-actions">
@@ -476,9 +555,9 @@
     <div class="about-content">
       <p class="section-label">About the Author</p>
       <h2>Engineering the future of medicine.</h2>
-      <p>Hey — I'm Anish, a Biomedical Engineering student at Drexel University. BioSignal is where I document what I'm learning, building, and thinking about at the intersection of biology and technology.</p>
-      <p>From signals & systems to tissue engineering, my coursework spans the full breadth of BME. I started this blog to go deeper than lecture slides — breaking down complex topics and connecting them to real-world applications.</p>
-      <p>Outside of academics, I'm actively in the co-op job search and passionate about medical devices, biotech, and the clinical side of engineering.</p>
+      <p>Hey there! I am Anish, a Biomedical Engineering student at Drexel University. BioSignal is my space where I share what I am learning, creating, and thinking about at the intersection of biology and technology.</p>
+      <p>From signals & systems to tissue engineering, my academic journey has taken me through the entire spectrum of Biomedical Engineering. I created this blog to dive deeper than just the lecture slides and textbooks.</p>
+      <p>I am also currently in the midst of a co-op job search process and am interested in medical devices, biotechnology, and the clinical side of engineering.</p>
       <div class="about-tags">
         <span class="tag">Medical Devices</span>
         <span class="tag">Biomechanics</span>
@@ -558,9 +637,11 @@
     const title   = document.getElementById('postTitle').value.trim();
     const tag     = document.getElementById('postTag').value.trim();
     const excerpt = document.getElementById('postExcerpt').value.trim();
-    const body    = document.getElementById('postBody').value.trim();
+    const bodyEl  = document.getElementById('postBody');
+    const body    = bodyEl.innerHTML.trim();
+    const bodyText = bodyEl.innerText.trim();
 
-    if (!title || !body) {
+    if (!title || !bodyText) {
       alert('Please add at least a title and content before publishing.');
       return;
     }
@@ -569,7 +650,7 @@
       id: Date.now(),
       title,
       tag: tag || 'General',
-      excerpt: excerpt || body.substring(0, 130) + (body.length > 130 ? '...' : ''),
+      excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
       body,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     };
@@ -578,9 +659,45 @@
     renderPosts();
 
     // Clear + close form
-    ['postTitle','postTag','postExcerpt','postBody'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postTag').value = '';
+    document.getElementById('postExcerpt').value = '';
+    document.getElementById('postBody').innerHTML = '';
     document.getElementById('postForm').classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function execCmd(cmd, value = null) {
+    document.getElementById('postBody').focus();
+    document.execCommand(cmd, false, value);
+  }
+
+  function triggerImageUpload() {
+    document.getElementById('imageUploadInput').click();
+  }
+
+  function insertImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const editor = document.getElementById('postBody');
+      editor.focus();
+      // Insert image with delete button wrapper
+      const imgId = 'img_' + Date.now();
+      const html = `<span class="post-img-wrap" id="${imgId}" contenteditable="false">
+        <img src="${e.target.result}" style="max-width:100%; border-radius:4px; display:block; margin:1rem 0;"/>
+        <button class="img-delete-btn" onclick="removeImage('${imgId}')" title="Remove image">✕ Remove</button>
+      </span><br/>`;
+      document.execCommand('insertHTML', false, html);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = ''; // reset so same file can be re-added
+  }
+
+  function removeImage(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
   }
 
   function renderPosts() {
@@ -638,7 +755,7 @@
     document.getElementById('singleTag').textContent   = post.tag;
     document.getElementById('singleTitle').textContent = post.title;
     document.getElementById('singleMeta').textContent  = post.date;
-    document.getElementById('singleBody').textContent  = post.body;
+    document.getElementById('singleBody').innerHTML    = post.body;
 
     document.getElementById('postSingle').classList.add('open');
     document.getElementById('postsList').style.display    = 'none';
