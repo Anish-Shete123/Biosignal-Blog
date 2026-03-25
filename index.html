@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BioSignal — A BME Blog</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -20,13 +18,7 @@
     body { background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.7; font-weight:300; }
 
     /* NAV */
-    nav {
-      position:sticky; top:0; z-index:100;
-      background:rgba(247,245,240,0.92); backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0 5vw; height:64px;
-    }
+    nav { position:sticky; top:0; z-index:100; background:rgba(247,245,240,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:64px; }
     .nav-logo { font-family:var(--serif); font-size:1.4rem; color:var(--ink); letter-spacing:-0.02em; cursor:pointer; }
     .nav-logo span { color:var(--accent); }
     .nav-links { display:flex; gap:2.5rem; list-style:none; }
@@ -161,9 +153,6 @@
     .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:var(--white); padding:0.75rem 1.5rem; border-radius:2px; font-size:0.85rem; z-index:9999; opacity:0; transform:translateY(10px); transition:all 0.3s; pointer-events:none; }
     .toast.show { opacity:1; transform:translateY(0); }
 
-    /* LOADING */
-    .loading { text-align:center; padding:3rem; color:var(--muted); font-size:0.9rem; }
-
     /* ANIMATIONS */
     @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
@@ -191,7 +180,7 @@
   </ul>
 </nav>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <section id="home" class="active">
   <div class="hero-wrap">
     <div class="hero-deco">∿</div>
@@ -248,7 +237,7 @@
   </footer>
 </section>
 
-<!-- ══ POSTS ══ -->
+<!-- POSTS -->
 <section id="posts">
   <div class="section-header" id="postsHeader">
     <div><p class="section-label">Writing</p><h2 class="section-title">Posts</h2></div>
@@ -265,13 +254,9 @@
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
       <h3 class="modal-title">Admin Login</h3>
-      <p class="modal-sub">Sign in with your Supabase account to manage posts.</p>
-      <div id="loginError" class="modal-error"></div>
+      <p class="modal-sub">Enter your password to manage posts.</p>
+      <div id="loginError" class="modal-error">Incorrect password. Try again.</div>
       <div class="form-field" style="margin-bottom:1rem;">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="your@email.com"/>
-      </div>
-      <div class="form-field">
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
       </div>
@@ -351,7 +336,6 @@
 
   <!-- Posts List -->
   <div class="posts-list" id="postsList">
-    <div class="loading" id="postsLoading">Loading posts...</div>
     <div class="posts-empty" id="postsEmpty" style="display:none;">
       <div class="posts-empty-icon">✍️</div>
       <h3>No posts yet</h3>
@@ -365,7 +349,7 @@
   </footer>
 </section>
 
-<!-- ══ ABOUT ══ -->
+<!-- ABOUT -->
 <section id="about">
   <div class="about-grid">
     <div class="about-visual">
@@ -397,198 +381,218 @@
   </footer>
 </section>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════
-// SUPABASE CONFIG — paste your values
-// ════════════════════════════════════
-const SUPABASE_URL = 'https://eqhfhsqkdjewdhmcgqfr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxaGZoc3FrZGpld2RobWNncWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjkyMTMsImV4cCI6MjA5MDA0NTIxM30.Pi3MkXbfo1JTU4pS6UPucRs65oriCRop1HvR4B-WbZ0'
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BioSignal — A BME Blog</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f7f5f0; --ink: #1a1a18; --muted: #7a7870;
-      --accent: #c95f3a; --accent-light: #f0e8e1; --border: #e0ddd6;
-      --white: #ffffff;
-      --serif: 'DM Serif Display', Georgia, serif;
-      --sans: 'DM Sans', sans-serif;
+  // ── ADMIN PASSWORD — change this to whatever you want ──
+  const ADMIN_PASSWORD = 'biosignal2026';
+
+  // ── localStorage key ──
+  const STORAGE_KEY = 'biosignal_posts';
+
+  // ── Load posts from localStorage on startup ──
+  let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+  // ── Save posts to localStorage ──
+  function savePosts() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  }
+
+  // ── Toast ──
+  function showToast(msg, duration=3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  // ── Navigation ──
+  function show(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    const el = document.getElementById('nav-' + id);
+    if (el) el.classList.add('active');
+    window.scrollTo({ top:0, behavior:'smooth' });
+    closePost();
+    if (id === 'posts') renderPosts();
+  }
+
+  // ── Admin Auth ──
+  let isAdmin = false;
+
+  function openLoginModal() {
+    document.getElementById('loginModal').classList.add('open');
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginPassword').value = '';
+    setTimeout(() => document.getElementById('loginPassword').focus(), 50);
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginModal').classList.remove('open');
+  }
+
+  function doLogin() {
+    const pwd = document.getElementById('loginPassword').value;
+    if (pwd === ADMIN_PASSWORD) {
+      isAdmin = true;
+      closeLoginModal();
+      document.getElementById('adminControls').style.display = 'flex';
+      document.getElementById('adminLoginBtn').style.display = 'none';
+      renderPosts();
+      showToast('Welcome back, Anish!');
+    } else {
+      document.getElementById('loginError').style.display = 'block';
     }
-    html { scroll-behavior: smooth; }
-    body { background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.7; font-weight:300; }
+  }
 
-    /* NAV */
-    nav {
-      position:sticky; top:0; z-index:100;
-      background:rgba(247,245,240,0.92); backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0 5vw; height:64px;
+  function adminLogout() {
+    isAdmin = false;
+    document.getElementById('adminControls').style.display = 'none';
+    document.getElementById('adminLoginBtn').style.display = '';
+    document.getElementById('postForm').classList.remove('open');
+    renderPosts();
+    showToast('Logged out.');
+  }
+
+  // ── Toggle Form ──
+  function toggleForm() {
+    const form = document.getElementById('postForm');
+    form.classList.toggle('open');
+    if (form.classList.contains('open')) {
+      setTimeout(() => form.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
     }
-    .nav-logo { font-family:var(--serif); font-size:1.4rem; color:var(--ink); letter-spacing:-0.02em; cursor:pointer; }
-    .nav-logo span { color:var(--accent); }
-    .nav-links { display:flex; gap:2.5rem; list-style:none; }
-    .nav-links a { text-decoration:none; color:var(--muted); font-size:0.875rem; font-weight:400; letter-spacing:0.04em; text-transform:uppercase; transition:color 0.2s; cursor:pointer; }
-    .nav-links a:hover, .nav-links a.active { color:var(--ink); }
+  }
 
-    /* SECTIONS */
-    section { display:none; }
-    section.active { display:block; }
+  // ── Submit Post ──
+  function submitPost() {
+    const title    = document.getElementById('postTitle').value.trim();
+    const tag      = document.getElementById('postTag').value.trim();
+    const excerpt  = document.getElementById('postExcerpt').value.trim();
+    const bodyEl   = document.getElementById('postBody');
+    const body     = bodyEl.innerHTML.trim();
+    const bodyText = bodyEl.innerText.trim();
 
-    /* HERO */
-    .hero-wrap { min-height:calc(100vh - 64px); display:flex; flex-direction:column; justify-content:center; padding:6rem 5vw 4rem; position:relative; overflow:hidden; }
-    .hero-eyebrow { font-size:0.75rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:1.5rem; opacity:0; animation:fadeUp 0.7s 0.1s forwards; }
-    .hero-title { font-family:var(--serif); font-size:clamp(3rem,7vw,6.5rem); line-height:1.05; letter-spacing:-0.03em; max-width:780px; opacity:0; animation:fadeUp 0.7s 0.25s forwards; }
-    .hero-title em { color:var(--accent); font-style:italic; }
-    .hero-sub { margin-top:2rem; max-width:480px; color:var(--muted); font-size:1.05rem; opacity:0; animation:fadeUp 0.7s 0.4s forwards; }
-    .hero-cta { margin-top:3rem; display:flex; gap:1rem; opacity:0; animation:fadeUp 0.7s 0.55s forwards; }
-    .hero-deco { position:absolute; right:5vw; top:50%; transform:translateY(-50%); opacity:0.06; pointer-events:none; font-family:var(--serif); font-size:clamp(12rem,20vw,22rem); line-height:1; color:var(--ink); user-select:none; }
+    if (!title || !bodyText) { showToast('Please add a title and content.'); return; }
 
-    /* BUTTONS */
-    .btn { padding:0.75rem 1.75rem; border-radius:2px; font-family:var(--sans); font-size:0.875rem; font-weight:500; cursor:pointer; transition:all 0.2s; text-transform:uppercase; letter-spacing:0.06em; border:none; }
-    .btn-primary { background:var(--ink); color:var(--white); }
-    .btn-primary:hover { background:var(--accent); }
-    .btn-outline { background:transparent; color:var(--ink); border:1.5px solid var(--border); }
-    .btn-outline:hover { border-color:var(--ink); }
-    .btn-accent { background:var(--accent); color:var(--white); }
-    .btn-accent:hover { background:var(--ink); }
-    .btn-sm { padding:0.45rem 1rem; font-size:0.78rem; }
+    const post = {
+      id: Date.now(),
+      title,
+      tag: tag || 'General',
+      excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
+      body,
+      date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+    };
 
-    /* SECTION HEADER */
-    .section-header { padding:5rem 5vw 2.5rem; display:flex; align-items:baseline; justify-content:space-between; border-bottom:1px solid var(--border); }
-    .section-label { font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); }
-    .section-title { font-family:var(--serif); font-size:2.2rem; letter-spacing:-0.02em; margin-top:0.4rem; }
+    posts.unshift(post);
+    savePosts(); // ← saves to localStorage
+    renderPosts();
 
-    /* PROJECTS */
-    .projects-list { padding:0 5vw; }
-    .project-item { display:grid; grid-template-columns:80px 1fr auto; gap:2.5rem; align-items:start; padding:2.5rem 0; border-bottom:1px solid var(--border); transition:opacity 0.2s; }
-    .project-item:hover { opacity:0.72; }
-    .project-num { font-family:var(--serif); font-size:2.5rem; color:var(--border); line-height:1; font-style:italic; }
-    .project-name { font-family:var(--serif); font-size:1.5rem; letter-spacing:-0.01em; margin-bottom:0.5rem; }
-    .project-desc { color:var(--muted); font-size:0.9rem; max-width:560px; }
-    .project-tech { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem; }
-    .project-status { font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:500; white-space:nowrap; padding:0.3rem 0.8rem; border-radius:2px; align-self:center; }
-    .status-complete { background:var(--accent-light); color:var(--accent); }
-    .tag { padding:0.35rem 0.85rem; background:var(--accent-light); color:var(--accent); font-size:0.75rem; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; border-radius:2px; }
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postTag').value = '';
+    document.getElementById('postExcerpt').value = '';
+    document.getElementById('postBody').innerHTML = '';
+    document.getElementById('postForm').classList.remove('open');
+    showToast('Post published!');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
 
-    /* POSTS LIST */
-    .posts-list { padding:0 5vw; }
-    .post-list-item { display:flex; align-items:flex-start; justify-content:space-between; gap:2rem; padding:2rem 0; border-bottom:1px solid var(--border); cursor:pointer; transition:opacity 0.2s; }
-    .post-list-item:hover { opacity:0.7; }
-    .post-list-left { flex:1; }
-    .post-list-tag { font-size:0.68rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; display:block; }
-    .post-list-title { font-family:var(--serif); font-size:1.4rem; letter-spacing:-0.01em; line-height:1.2; margin-bottom:0.5rem; }
-    .post-list-excerpt { color:var(--muted); font-size:0.88rem; max-width:560px; }
-    .post-list-meta { font-size:0.75rem; color:var(--muted); margin-top:0.6rem; }
-    .post-list-right { display:flex; align-items:center; gap:0.75rem; }
-    .post-list-arrow { font-size:1.2rem; color:var(--accent); }
-    .post-delete-btn { background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--border); padding:0.3rem; transition:color 0.2s; line-height:1; }
-    .post-delete-btn:hover { color:#e53935; }
+  // ── Delete Post ──
+  function deletePost(id) {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    posts = posts.filter(p => p.id !== id);
+    savePosts(); // ← updates localStorage
+    renderPosts();
+    showToast('Post deleted.');
+  }
 
-    /* EMPTY STATE */
-    .posts-empty { padding:5rem 5vw; text-align:center; color:var(--muted); }
-    .posts-empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
-    .posts-empty h3 { font-family:var(--serif); font-size:1.5rem; color:var(--ink); margin-bottom:0.5rem; }
+  // ── Render Posts ──
+  function renderPosts() {
+    const list  = document.getElementById('postsList');
+    const empty = document.getElementById('postsEmpty');
 
-    /* POST FORM */
-    .post-form-wrap { display:none; padding:3rem 5vw; border-bottom:2px solid var(--accent); background:var(--white); }
-    .post-form-wrap.open { display:block; }
-    .post-form-title { font-family:var(--serif); font-size:1.6rem; margin-bottom:2rem; letter-spacing:-0.02em; }
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-bottom:1.2rem; }
-    .form-field { display:flex; flex-direction:column; gap:0.4rem; }
-    .form-field label { font-size:0.72rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
-    .form-field input { background:var(--bg); border:1px solid var(--border); padding:0.75rem 1rem; font-family:var(--sans); font-size:0.95rem; color:var(--ink); border-radius:2px; outline:none; transition:border-color 0.2s; }
-    .form-field input:focus { border-color:var(--accent); }
-    .form-field.full { grid-column:1 / -1; }
-    .form-actions { display:flex; gap:1rem; margin-top:1.5rem; }
+    list.querySelectorAll('.post-list-item').forEach(e => e.remove());
 
-    /* RICH EDITOR */
-    .editor-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem; padding:0.6rem 0.75rem; background:var(--bg); border:1px solid var(--border); border-bottom:none; border-radius:2px 2px 0 0; }
-    .editor-toolbar select { padding:0.3rem 0.5rem; border:1px solid var(--border); background:var(--white); font-family:var(--sans); font-size:0.8rem; color:var(--ink); border-radius:2px; cursor:pointer; outline:none; }
-    .editor-toolbar select:focus { border-color:var(--accent); }
-    .toolbar-btn { background:var(--white); border:1px solid var(--border); padding:0.3rem 0.6rem; font-size:0.85rem; cursor:pointer; border-radius:2px; color:var(--ink); line-height:1; transition:all 0.15s; font-family:var(--sans); }
-    .toolbar-btn:hover { background:var(--accent-light); border-color:var(--accent); color:var(--accent); }
-    .toolbar-divider { width:1px; height:20px; background:var(--border); margin:0 0.2rem; }
-    .rich-editor { min-height:220px; padding:1rem; border:1px solid var(--border); border-radius:0 0 2px 2px; background:var(--white); font-family:var(--sans); font-size:0.95rem; color:var(--ink); line-height:1.7; outline:none; }
-    .rich-editor:focus { border-color:var(--accent); }
-    .rich-editor:empty:before { content:attr(data-placeholder); color:var(--muted); pointer-events:none; }
-    .post-img-wrap { display:block; position:relative; margin:1rem 0; }
-    .img-delete-btn { display:inline-block; margin-top:0.3rem; background:#fee2e2; border:none; color:#e53935; font-size:0.75rem; padding:0.2rem 0.6rem; border-radius:2px; cursor:pointer; font-family:var(--sans); }
-    .img-delete-btn:hover { background:#e53935; color:white; }
+    if (posts.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
 
-    /* SINGLE POST */
-    .post-single { display:none; padding:4rem 5vw; max-width:760px; margin:0 auto; }
-    .post-single.open { display:block; }
-    .post-single-back { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); cursor:pointer; margin-bottom:2.5rem; display:inline-flex; align-items:center; gap:0.4rem; transition:color 0.2s; }
-    .post-single-back:hover { color:var(--accent); }
-    .post-single-tag { font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:1rem; display:block; }
-    .post-single-title { font-family:var(--serif); font-size:clamp(2rem,5vw,3.2rem); letter-spacing:-0.03em; line-height:1.1; margin-bottom:1.5rem; }
-    .post-single-meta { font-size:0.8rem; color:var(--muted); margin-bottom:3rem; padding-bottom:2rem; border-bottom:1px solid var(--border); }
-    .post-single-body { font-size:1rem; line-height:1.85; color:var(--ink); }
-    .post-single-body img { max-width:100%; border-radius:4px; margin:1rem 0; display:block; }
+    posts.forEach(post => {
+      const item = document.createElement('div');
+      item.className = 'post-list-item';
+      item.innerHTML = `
+        <div class="post-list-left">
+          <span class="post-list-tag">${post.tag}</span>
+          <h3 class="post-list-title">${post.title}</h3>
+          <p class="post-list-excerpt">${post.excerpt}</p>
+          <p class="post-list-meta">${post.date}</p>
+        </div>
+        <div class="post-list-right">
+          ${isAdmin ? `<button class="post-delete-btn" title="Delete">🗑️</button>` : ''}
+          <span class="post-list-arrow">→</span>
+        </div>`;
+      item.onclick = (e) => {
+        if (e.target.closest('.post-delete-btn')) return;
+        openPost(post);
+      };
+      if (isAdmin) {
+        item.querySelector('.post-delete-btn').onclick = (e) => {
+          e.stopPropagation();
+          deletePost(post.id);
+        };
+      }
+      list.appendChild(item);
+    });
+  }
 
-    /* ABOUT */
-    .about-grid { display:grid; grid-template-columns:1fr 1fr; min-height:calc(100vh - 64px); }
-    .about-visual { background:var(--ink); display:flex; align-items:center; justify-content:center; min-height:400px; position:relative; overflow:hidden; }
-    .about-monogram { font-family:var(--serif); font-size:14rem; color:rgba(255,255,255,0.08); user-select:none; line-height:1; position:absolute; }
-    .about-badge { position:relative; z-index:1; width:140px; height:140px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; }
-    .about-badge-name { font-family:var(--serif); font-size:1.5rem; color:var(--white); line-height:1.1; }
-    .about-badge-sub { font-size:0.65rem; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.3rem; }
-    .about-content { padding:6rem 5vw; display:flex; flex-direction:column; justify-content:center; }
-    .about-content .section-label { margin-bottom:0.75rem; }
-    .about-content h2 { font-family:var(--serif); font-size:2.8rem; letter-spacing:-0.03em; line-height:1.1; margin-bottom:2rem; }
-    .about-content p { color:var(--muted); margin-bottom:1.2rem; font-size:0.975rem; }
-    .about-tags { display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:2rem; }
+  // ── Open / Close Single Post ──
+  function openPost(post) {
+    document.getElementById('singleTag').textContent   = post.tag;
+    document.getElementById('singleTitle').textContent = post.title;
+    document.getElementById('singleMeta').textContent  = post.date;
+    document.getElementById('singleBody').innerHTML    = post.body;
 
-    /* FOOTER */
-    footer { border-top:1px solid var(--border); padding:2.5rem 5vw; display:flex; align-items:center; justify-content:space-between; }
-    .footer-logo { font-family:var(--serif); font-size:1.1rem; }
-    .footer-logo span { color:var(--accent); }
-    .footer-copy { font-size:0.78rem; color:var(--muted); }
+    document.getElementById('postSingle').classList.add('open');
+    document.getElementById('postsList').style.display   = 'none';
+    document.getElementById('postsHeader').style.display = 'none';
+    document.getElementById('postForm').style.display    = 'none';
+    document.getElementById('postsFooter').style.display = 'none';
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
 
-    /* MODAL */
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; }
-    .modal-overlay.open { display:flex; }
-    .modal-box { background:var(--white); padding:2.5rem; width:380px; border-radius:4px; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
-    .modal-title { font-family:var(--serif); font-size:1.6rem; margin-bottom:0.4rem; letter-spacing:-0.02em; }
-    .modal-sub { font-size:0.85rem; color:var(--muted); margin-bottom:1.8rem; }
-    .modal-error { display:none; color:#e53935; font-size:0.8rem; margin-bottom:1rem; padding:0.5rem 0.75rem; background:#fee2e2; border-radius:2px; }
-    .modal-actions { display:flex; gap:0.75rem; margin-top:1.5rem; }
+  function closePost() {
+    document.getElementById('postSingle').classList.remove('open');
+    document.getElementById('postsList').style.display   = '';
+    document.getElementById('postsHeader').style.display = '';
+    document.getElementById('postForm').style.display    = '';
+    document.getElementById('postsFooter').style.display = '';
+  }
 
-    /* TOAST */
-    .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:var(--white); padding:0.75rem 1.5rem; border-radius:2px; font-size:0.85rem; z-index:9999; opacity:0; transform:translateY(10px); transition:all 0.3s; pointer-events:none; }
-    .toast.show { opacity:1; transform:translateY(0); }
+  // ── Rich Editor ──
+  function execCmd(cmd, value=null) {
+    document.getElementById('postBody').focus();
+    document.execCommand(cmd, false, value);
+  }
+  function triggerImageUpload() { document.getElementById('imageUploadInput').click(); }
+  function insertImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imgId = 'img_' + Date.now();
+      document.getElementById('postBody').focus();
+      document.execCommand('insertHTML', false,
+        `<span class="post-img-wrap" id="${imgId}" contenteditable="false">
+          <img src="${e.target.result}" style="max-width:100%;border-radius:4px;display:block;margin:1rem 0;"/>
+          <button class="img-delete-btn" onclick="removeImage('${imgId}')">✕ Remove</button>
+        </span><br/>`
+      );
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+  function removeImage(id) { const el = document.getElementById(id); if (el) el.remove(); }
 
-    /* LOADING */
-    .loading { text-align:center; padding:3rem; color:var(--muted); font-size:0.9rem; }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
-    /* RESPONSIVE */
-    @media (max-width:768px) {
-      .hero-deco { display:none; }
-      .about-grid { grid-template-columns:1fr; }
-      .about-visual { min-height:260px; }
-      .project-item { grid-template-columns:50px 1fr; }
-      .project-status { display:none; }
-      .hero-title { font-size:2.8rem; }
-      .form-grid { grid-template-columns:1fr; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- NAV -->
-
+  // ── Init: render posts on page load ──
+  renderPosts();
+</script>
 </body>
 </html>
