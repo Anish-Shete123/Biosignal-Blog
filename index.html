@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BioSignal — A BME Blog</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -83,6 +84,7 @@
     .posts-empty { padding:5rem 5vw; text-align:center; color:var(--muted); }
     .posts-empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
     .posts-empty h3 { font-family:var(--serif); font-size:1.5rem; color:var(--ink); margin-bottom:0.5rem; }
+    .loading { text-align:center; padding:3rem; color:var(--muted); font-size:0.9rem; }
 
     /* POST FORM */
     .post-form-wrap { display:none; padding:3rem 5vw; border-bottom:2px solid var(--accent); background:var(--white); }
@@ -153,10 +155,8 @@
     .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:var(--white); padding:0.75rem 1.5rem; border-radius:2px; font-size:0.85rem; z-index:9999; opacity:0; transform:translateY(10px); transition:all 0.3s; pointer-events:none; }
     .toast.show { opacity:1; transform:translateY(0); }
 
-    /* ANIMATIONS */
     @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-    /* RESPONSIVE */
     @media (max-width:768px) {
       .hero-deco { display:none; }
       .about-grid { grid-template-columns:1fr; }
@@ -254,9 +254,13 @@
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
       <h3 class="modal-title">Admin Login</h3>
-      <p class="modal-sub">Enter your password to manage posts.</p>
-      <div id="loginError" class="modal-error">Incorrect password. Try again.</div>
+      <p class="modal-sub">Sign in to manage posts.</p>
+      <div id="loginError" class="modal-error"></div>
       <div class="form-field" style="margin-bottom:1rem;">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com"/>
+      </div>
+      <div class="form-field">
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
       </div>
@@ -336,6 +340,7 @@
 
   <!-- Posts List -->
   <div class="posts-list" id="postsList">
+    <div class="loading" id="postsLoading" style="display:none;">Loading posts...</div>
     <div class="posts-empty" id="postsEmpty" style="display:none;">
       <div class="posts-empty-icon">✍️</div>
       <h3>No posts yet</h3>
@@ -384,28 +389,19 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── ADMIN PASSWORD — change this to whatever you want ──
-  const ADMIN_PASSWORD = 'biosignal2026';
-
-  // ── localStorage key ──
-  const STORAGE_KEY = 'biosignal_posts';
-
-  // ── Load posts from localStorage on startup ──
-  let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-
-  // ── Save posts to localStorage ──
-  function savePosts() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-  }
+  // ── Supabase setup ──
+  const SUPABASE_URL  = 'https://rcdtitewehragssmbtjr.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZHRpdGV3ZWhyYWdzc21idGpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0ODk3NTgsImV4cCI6MjA5MDA2NTc1OH0.00-WnQsxT8EW2dQ-LEHb5bSy7y3UxcdIGFJI2amV-3A';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   // ── Toast ──
-  function showToast(msg, duration=3000) {
+  function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
+    setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // ── Navigation ──
+  // ── Navigation — identical to your working file ──
   function show(id) {
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -414,43 +410,60 @@
     if (el) el.classList.add('active');
     window.scrollTo({ top:0, behavior:'smooth' });
     closePost();
-    if (id === 'posts') renderPosts();
+    if (id === 'posts') loadPosts();
   }
 
-  // ── Admin Auth ──
-  let isAdmin = false;
+  // ── Auth ──
+  let currentUser = null;
+
+  async function checkSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) setAdminUI(session.user);
+  }
+
+  function setAdminUI(user) {
+    currentUser = user;
+    document.getElementById('adminControls').style.display = 'flex';
+    document.getElementById('adminLoginBtn').style.display = 'none';
+  }
 
   function openLoginModal() {
     document.getElementById('loginModal').classList.add('open');
     document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginEmail').value = '';
     document.getElementById('loginPassword').value = '';
-    setTimeout(() => document.getElementById('loginPassword').focus(), 50);
+    setTimeout(() => document.getElementById('loginEmail').focus(), 50);
   }
 
   function closeLoginModal() {
     document.getElementById('loginModal').classList.remove('open');
   }
 
-  function doLogin() {
-    const pwd = document.getElementById('loginPassword').value;
-    if (pwd === ADMIN_PASSWORD) {
-      isAdmin = true;
-      closeLoginModal();
-      document.getElementById('adminControls').style.display = 'flex';
-      document.getElementById('adminLoginBtn').style.display = 'none';
-      renderPosts();
-      showToast('Welcome back, Anish!');
-    } else {
-      document.getElementById('loginError').style.display = 'block';
+  async function doLogin() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errEl    = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.style.display = 'block';
+      return;
     }
+    setAdminUI(data.user);
+    closeLoginModal();
+    showToast('Welcome back, Anish!');
+    loadPosts();
   }
 
-  function adminLogout() {
-    isAdmin = false;
+  async function adminLogout() {
+    await sb.auth.signOut();
+    currentUser = null;
     document.getElementById('adminControls').style.display = 'none';
     document.getElementById('adminLoginBtn').style.display = '';
     document.getElementById('postForm').classList.remove('open');
-    renderPosts();
+    loadPosts();
     showToast('Logged out.');
   }
 
@@ -463,77 +476,50 @@
     }
   }
 
-  // ── Submit Post ──
-  function submitPost() {
-    const title    = document.getElementById('postTitle').value.trim();
-    const tag      = document.getElementById('postTag').value.trim();
-    const excerpt  = document.getElementById('postExcerpt').value.trim();
-    const bodyEl   = document.getElementById('postBody');
-    const body     = bodyEl.innerHTML.trim();
-    const bodyText = bodyEl.innerText.trim();
+  // ── Load posts from Supabase ──
+  async function loadPosts() {
+    document.getElementById('postsLoading').style.display = 'block';
+    document.getElementById('postsEmpty').style.display = 'none';
+    document.querySelectorAll('.post-list-item').forEach(e => e.remove());
 
-    if (!title || !bodyText) { showToast('Please add a title and content.'); return; }
+    const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
 
-    const post = {
-      id: Date.now(),
-      title,
-      tag: tag || 'General',
-      excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
-      body,
-      date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
-    };
+    document.getElementById('postsLoading').style.display = 'none';
 
-    posts.unshift(post);
-    savePosts(); // ← saves to localStorage
-    renderPosts();
-
-    document.getElementById('postTitle').value = '';
-    document.getElementById('postTag').value = '';
-    document.getElementById('postExcerpt').value = '';
-    document.getElementById('postBody').innerHTML = '';
-    document.getElementById('postForm').classList.remove('open');
-    showToast('Post published!');
-    window.scrollTo({ top:0, behavior:'smooth' });
+    if (error) { showToast('Error loading posts.'); return; }
+    if (!data || data.length === 0) { document.getElementById('postsEmpty').style.display = 'block'; return; }
+    renderPosts(data);
   }
 
-  // ── Delete Post ──
-  function deletePost(id) {
-    if (!confirm('Delete this post? This cannot be undone.')) return;
-    posts = posts.filter(p => p.id !== id);
-    savePosts(); // ← updates localStorage
-    renderPosts();
-    showToast('Post deleted.');
-  }
-
-  // ── Render Posts ──
-  function renderPosts() {
+  // ── Render Posts — same structure as your working file ──
+  function renderPosts(posts) {
     const list  = document.getElementById('postsList');
     const empty = document.getElementById('postsEmpty');
-
     list.querySelectorAll('.post-list-item').forEach(e => e.remove());
 
-    if (posts.length === 0) { empty.style.display = 'block'; return; }
+    if (!posts || posts.length === 0) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
 
     posts.forEach(post => {
+      const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
       const item = document.createElement('div');
       item.className = 'post-list-item';
       item.innerHTML = `
         <div class="post-list-left">
-          <span class="post-list-tag">${post.tag}</span>
+          <span class="post-list-tag">${post.tag || 'General'}</span>
           <h3 class="post-list-title">${post.title}</h3>
-          <p class="post-list-excerpt">${post.excerpt}</p>
-          <p class="post-list-meta">${post.date}</p>
+          <p class="post-list-excerpt">${post.excerpt || ''}</p>
+          <p class="post-list-meta">${date}</p>
         </div>
         <div class="post-list-right">
-          ${isAdmin ? `<button class="post-delete-btn" title="Delete">🗑️</button>` : ''}
+          ${currentUser ? `<button class="post-delete-btn" title="Delete">🗑️</button>` : ''}
           <span class="post-list-arrow">→</span>
         </div>`;
       item.onclick = (e) => {
         if (e.target.closest('.post-delete-btn')) return;
         openPost(post);
       };
-      if (isAdmin) {
+      if (currentUser) {
         item.querySelector('.post-delete-btn').onclick = (e) => {
           e.stopPropagation();
           deletePost(post.id);
@@ -543,11 +529,51 @@
     });
   }
 
-  // ── Open / Close Single Post ──
+  // ── Submit Post ──
+  async function submitPost() {
+    const title    = document.getElementById('postTitle').value.trim();
+    const tag      = document.getElementById('postTag').value.trim();
+    const excerpt  = document.getElementById('postExcerpt').value.trim();
+    const bodyEl   = document.getElementById('postBody');
+    const body     = bodyEl.innerHTML.trim();
+    const bodyText = bodyEl.innerText.trim();
+
+    if (!title || !bodyText) { showToast('Please add a title and content.'); return; }
+
+    const { error } = await sb.from('posts').insert([{
+      title,
+      tag: tag || 'General',
+      excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
+      body,
+      user_id: currentUser.id
+    }]);
+
+    if (error) { showToast('Error saving post: ' + error.message); return; }
+
+    showToast('Post published!');
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postTag').value = '';
+    document.getElementById('postExcerpt').value = '';
+    document.getElementById('postBody').innerHTML = '';
+    document.getElementById('postForm').classList.remove('open');
+    loadPosts();
+  }
+
+  // ── Delete Post ──
+  async function deletePost(id) {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    const { error } = await sb.from('posts').delete().eq('id', id);
+    if (error) { showToast('Error deleting post.'); return; }
+    showToast('Post deleted.');
+    loadPosts();
+  }
+
+  // ── Open / Close Single Post — identical to your working file ──
   function openPost(post) {
-    document.getElementById('singleTag').textContent   = post.tag;
+    const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    document.getElementById('singleTag').textContent   = post.tag || 'General';
     document.getElementById('singleTitle').textContent = post.title;
-    document.getElementById('singleMeta').textContent  = post.date;
+    document.getElementById('singleMeta').textContent  = date;
     document.getElementById('singleBody').innerHTML    = post.body;
 
     document.getElementById('postSingle').classList.add('open');
@@ -591,8 +617,8 @@
   }
   function removeImage(id) { const el = document.getElementById(id); if (el) el.remove(); }
 
-  // ── Init: render posts on page load ──
-  renderPosts();
+  // ── Init ──
+  checkSession();
 </script>
 </body>
 </html>
