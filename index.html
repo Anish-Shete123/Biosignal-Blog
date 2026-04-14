@@ -15,11 +15,21 @@
       --serif: 'DM Serif Display', Georgia, serif;
       --sans: 'DM Sans', sans-serif;
     }
+    html.dark {
+      --bg: #141412; --ink: #f0ede8; --muted: #8a8780;
+      --accent: #d4724a; --accent-light: #2a1a12; --border: #2e2c28;
+      --white: #1e1c19;
+    }
     html { scroll-behavior: smooth; }
-    body { background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.7; font-weight:300; }
+    body { background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.7; font-weight:300; transition: background 0.25s, color 0.25s; }
+
+    /* DARK MODE TOGGLE */
+    .theme-toggle { background:none; border:1.5px solid var(--border); border-radius:2px; cursor:pointer; padding:0.3rem 0.55rem; font-size:1rem; line-height:1; color:var(--muted); transition:all 0.2s; }
+    .theme-toggle:hover { border-color:var(--ink); color:var(--ink); }
 
     /* NAV */
-    nav { position:sticky; top:0; z-index:100; background:rgba(247,245,240,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:64px; }
+    nav { position:sticky; top:0; z-index:100; background:rgba(247,245,240,0.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 5vw; height:64px; transition:background 0.25s, border-color 0.25s; }
+    html.dark nav { background:rgba(20,20,18,0.92); }
     .nav-logo { font-family:var(--serif); font-size:1.4rem; color:var(--ink); letter-spacing:-0.02em; cursor:pointer; }
     .nav-logo span { color:var(--accent); }
     .nav-links { display:flex; gap:2.5rem; list-style:none; }
@@ -80,6 +90,13 @@
     .post-delete-btn { background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--border); padding:0.3rem; transition:color 0.2s; line-height:1; }
     .post-delete-btn:hover { color:#e53935; }
 
+    /* TAG FILTER BAR */
+    .tag-filter-bar { padding:1.5rem 5vw 0; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
+    .tag-filter-btn { padding:0.35rem 0.9rem; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-family:var(--sans); font-size:0.72rem; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:all 0.18s; }
+    .tag-filter-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .tag-filter-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .tag-filter-none { padding:3rem 5vw; color:var(--muted); font-size:0.9rem; display:none; }
+
     /* EMPTY STATE */
     .posts-empty { padding:5rem 5vw; text-align:center; color:var(--muted); }
     .posts-empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
@@ -89,14 +106,36 @@
     /* POST FORM */
     .post-form-wrap { display:none; padding:3rem 5vw; border-bottom:2px solid var(--accent); background:var(--white); }
     .post-form-wrap.open { display:block; }
-    .post-form-title { font-family:var(--serif); font-size:1.6rem; margin-bottom:2rem; letter-spacing:-0.02em; }
+    .post-form-title { font-family:var(--serif); font-size:1.6rem; margin-bottom:0.4rem; letter-spacing:-0.02em; }
+    .post-form-subtitle { font-size:0.78rem; color:var(--muted); margin-bottom:2rem; display:flex; align-items:center; gap:0.75rem; }
+    .autosave-indicator { font-size:0.72rem; color:var(--muted); opacity:0; transition:opacity 0.4s; }
+    .autosave-indicator.show { opacity:1; }
+    .draft-banner { background:var(--accent-light); border:1px solid var(--accent); border-radius:2px; padding:0.6rem 1rem; font-size:0.8rem; color:var(--accent); margin-bottom:1.5rem; display:none; justify-content:space-between; align-items:center; }
+    .draft-banner.show { display:flex; }
+    .draft-banner button { background:none; border:none; color:var(--accent); font-size:0.75rem; cursor:pointer; text-decoration:underline; font-family:var(--sans); }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-bottom:1.2rem; }
     .form-field { display:flex; flex-direction:column; gap:0.4rem; }
     .form-field label { font-size:0.72rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
     .form-field input { background:var(--bg); border:1px solid var(--border); padding:0.75rem 1rem; font-family:var(--sans); font-size:0.95rem; color:var(--ink); border-radius:2px; outline:none; transition:border-color 0.2s; }
     .form-field input:focus { border-color:var(--accent); }
     .form-field.full { grid-column:1 / -1; }
-    .form-actions { display:flex; gap:1rem; margin-top:1.5rem; }
+    .form-actions { display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap; }
+
+    /* PREVIEW MODAL */
+    .preview-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; overflow-y:auto; }
+    .preview-overlay.open { display:block; }
+    .preview-box { background:var(--bg); max-width:780px; margin:2rem auto; border-radius:4px; padding:3rem 4vw 4rem; position:relative; }
+    .preview-close { position:sticky; top:1rem; float:right; background:var(--ink); color:var(--white); border:none; border-radius:2px; padding:0.45rem 1rem; font-family:var(--sans); font-size:0.78rem; font-weight:500; cursor:pointer; text-transform:uppercase; letter-spacing:0.06em; transition:background 0.2s; }
+    .preview-close:hover { background:var(--accent); }
+    .preview-label { font-size:0.68rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:0.5rem; display:block; clear:both; }
+    .preview-title { font-family:var(--serif); font-size:clamp(2rem,5vw,3rem); letter-spacing:-0.03em; line-height:1.1; margin-bottom:1.5rem; }
+    .preview-meta { font-size:0.8rem; color:var(--muted); margin-bottom:3rem; padding-bottom:2rem; border-bottom:1px solid var(--border); }
+    .preview-body { font-size:1rem; line-height:1.85; color:var(--ink); }
+    .preview-body img { max-width:100%; border-radius:4px; margin:1rem 0; display:block; }
+
+    /* EDIT BUTTON on post list */
+    .post-edit-btn { background:none; border:none; cursor:pointer; font-size:1rem; color:var(--border); padding:0.3rem; transition:color 0.2s; line-height:1; }
+    .post-edit-btn:hover { color:var(--accent); }
 
     /* RICH EDITOR */
     .editor-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem; padding:0.6rem 0.75rem; background:var(--bg); border:1px solid var(--border); border-bottom:none; border-radius:2px 2px 0 0; }
@@ -155,6 +194,22 @@
     .toast { position:fixed; bottom:2rem; right:2rem; background:var(--ink); color:var(--white); padding:0.75rem 1.5rem; border-radius:2px; font-size:0.85rem; z-index:9999; opacity:0; transform:translateY(10px); transition:all 0.3s; pointer-events:none; }
     .toast.show { opacity:1; transform:translateY(0); }
 
+    /* SKELETON SCREENS */
+    @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+    .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%); background-size: 600px 100%; animation: shimmer 1.4s infinite linear; border-radius: 2px; }
+    .skeleton-item { padding: 2rem 5vw; border-bottom: 1px solid var(--border); }
+    .skeleton-tag { height: 10px; width: 80px; margin-bottom: 0.75rem; }
+    .skeleton-title { height: 22px; width: 60%; margin-bottom: 0.6rem; }
+    .skeleton-title-short { height: 22px; width: 40%; margin-bottom: 0.6rem; }
+    .skeleton-excerpt { height: 14px; width: 85%; margin-bottom: 0.4rem; }
+    .skeleton-excerpt-short { height: 14px; width: 55%; margin-bottom: 0.75rem; }
+    .skeleton-meta { height: 10px; width: 120px; }
+
+    /* BACK TO TOP */
+    .back-to-top { position: fixed; bottom: 2rem; left: 2rem; width: 40px; height: 40px; background: var(--ink); color: var(--white); border: none; border-radius: 2px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; z-index: 998; }
+    .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .back-to-top:hover { background: var(--accent); }
+
     @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
     @media (max-width:768px) {
@@ -178,6 +233,7 @@
     <li><a onclick="show('posts')" id="nav-posts">Posts</a></li>
     <li><a onclick="show('about')" id="nav-about">About</a></li>
   </ul>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">☀️</button>
 </nav>
 
 <!-- HOME -->
@@ -273,7 +329,15 @@
 
   <!-- Post Form -->
   <div class="post-form-wrap" id="postForm">
-    <h3 class="post-form-title">Write a New Post</h3>
+    <h3 class="post-form-title" id="postFormTitle">Write a New Post</h3>
+    <div class="post-form-subtitle">
+      <span id="postFormMode">New post</span>
+      <span class="autosave-indicator" id="autosaveIndicator">✓ Draft saved</span>
+    </div>
+    <div class="draft-banner" id="draftBanner">
+      📝 You have an unsaved draft. <button onclick="restoreDraft()">Restore it</button>
+      <button onclick="discardDraft()">Discard</button>
+    </div>
     <div class="form-grid">
       <div class="form-field">
         <label>Post Title</label>
@@ -324,8 +388,20 @@
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn btn-primary" onclick="submitPost()">Publish Post</button>
-      <button class="btn btn-outline" onclick="toggleForm()">Cancel</button>
+      <button class="btn btn-primary" id="publishBtn" onclick="submitPost()">Publish Post</button>
+      <button class="btn btn-outline" onclick="previewPost()">Preview</button>
+      <button class="btn btn-outline" onclick="cancelForm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="preview-overlay" id="previewOverlay">
+    <div class="preview-box">
+      <button class="preview-close" onclick="closePreview()">✕ Close Preview</button>
+      <span class="preview-label" id="previewTag"></span>
+      <h1 class="preview-title" id="previewTitle"></h1>
+      <p class="preview-meta" id="previewMeta"></p>
+      <div class="preview-body" id="previewBody"></div>
     </div>
   </div>
 
@@ -337,6 +413,10 @@
     <p class="post-single-meta" id="singleMeta"></p>
     <div class="post-single-body" id="singleBody"></div>
   </div>
+
+  <!-- Tag Filter Bar -->
+  <div class="tag-filter-bar" id="tagFilterBar" style="display:none;"></div>
+  <p class="tag-filter-none" id="tagFilterNone">No posts found for this tag.</p>
 
   <!-- Posts List -->
   <div class="posts-list" id="postsList">
@@ -387,6 +467,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 
 <script>
   // ── Supabase setup ──
@@ -467,28 +548,257 @@
     showToast('Logged out.');
   }
 
-  // ── Toggle Form ──
+  // ── Toggle Form (new post) ──
   function toggleForm() {
     const form = document.getElementById('postForm');
+    const isOpening = !form.classList.contains('open');
+    if (isOpening) {
+      editingPostId = null;
+      document.getElementById('postFormTitle').textContent = 'Write a New Post';
+      document.getElementById('postFormMode').textContent = 'New post';
+      document.getElementById('publishBtn').textContent = 'Publish Post';
+      checkForDraft();
+    }
     form.classList.toggle('open');
     if (form.classList.contains('open')) {
       setTimeout(() => form.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
     }
   }
 
-  // ── Load posts from Supabase ──
+  function cancelForm() {
+    editingPostId = null;
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postTag').value = '';
+    document.getElementById('postExcerpt').value = '';
+    document.getElementById('postBody').innerHTML = '';
+    document.getElementById('postForm').classList.remove('open');
+    document.getElementById('draftBanner').classList.remove('show');
+    document.getElementById('postFormTitle').textContent = 'Write a New Post';
+    document.getElementById('postFormMode').textContent = 'New post';
+    document.getElementById('publishBtn').textContent = 'Publish Post';
+  }
+
+  // ── Edit existing post ──
+  let editingPostId = null;
+
+  function openEditForm(post) {
+    editingPostId = post.id;
+    document.getElementById('postFormTitle').textContent = 'Edit Post';
+    document.getElementById('postFormMode').textContent = 'Editing existing post';
+    document.getElementById('publishBtn').textContent = 'Save Changes';
+    document.getElementById('postTitle').value = post.title || '';
+    document.getElementById('postTag').value = post.tag || '';
+    document.getElementById('postExcerpt').value = post.excerpt || '';
+    document.getElementById('postBody').innerHTML = post.body || '';
+    document.getElementById('draftBanner').classList.remove('show');
+    const form = document.getElementById('postForm');
+    form.classList.add('open');
+    setTimeout(() => form.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+  }
+
+  // ── Auto-save draft to localStorage ──
+  let autosaveTimer = null;
+
+  function scheduleDraftSave() {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      if (editingPostId) return; // don't auto-save drafts while editing existing posts
+      const draft = {
+        title:   document.getElementById('postTitle').value,
+        tag:     document.getElementById('postTag').value,
+        excerpt: document.getElementById('postExcerpt').value,
+        body:    document.getElementById('postBody').innerHTML
+      };
+      const hasContent = draft.title || draft.body.replace(/<[^>]*>/g,'').trim();
+      if (!hasContent) return;
+      localStorage.setItem('biosignal_draft', JSON.stringify(draft));
+      const ind = document.getElementById('autosaveIndicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 2000);
+    }, 2000);
+  }
+
+  function checkForDraft() {
+    const raw = localStorage.getItem('biosignal_draft');
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw);
+      const hasContent = draft.title || (draft.body || '').replace(/<[^>]*>/g,'').trim();
+      if (hasContent) document.getElementById('draftBanner').classList.add('show');
+    } catch(e) {}
+  }
+
+  function restoreDraft() {
+    const raw = localStorage.getItem('biosignal_draft');
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw);
+      document.getElementById('postTitle').value = draft.title || '';
+      document.getElementById('postTag').value = draft.tag || '';
+      document.getElementById('postExcerpt').value = draft.excerpt || '';
+      document.getElementById('postBody').innerHTML = draft.body || '';
+      document.getElementById('draftBanner').classList.remove('show');
+      showToast('Draft restored!');
+    } catch(e) {}
+  }
+
+  function discardDraft() {
+    localStorage.removeItem('biosignal_draft');
+    document.getElementById('draftBanner').classList.remove('show');
+    showToast('Draft discarded.');
+  }
+
+  // Wire up autosave listeners after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    ['postTitle','postTag','postExcerpt'].forEach(id => {
+      document.getElementById(id).addEventListener('input', scheduleDraftSave);
+    });
+    document.getElementById('postBody').addEventListener('input', scheduleDraftSave);
+  });
+
+  // ── Preview ──
+  function previewPost() {
+    const title   = document.getElementById('postTitle').value.trim() || 'Untitled';
+    const tag     = document.getElementById('postTag').value.trim() || 'General';
+    const bodyEl  = document.getElementById('postBody');
+    const bodyCopy = bodyEl.cloneNode(true);
+    bodyCopy.querySelectorAll('.img-delete-btn').forEach(b => b.remove());
+
+    document.getElementById('previewTag').textContent = tag;
+    document.getElementById('previewTitle').textContent = title;
+    document.getElementById('previewMeta').textContent = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) + ' · Preview';
+    document.getElementById('previewBody').innerHTML = bodyCopy.innerHTML;
+    document.getElementById('previewOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreview() {
+    document.getElementById('previewOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Close preview on overlay click
+  document.getElementById('previewOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('previewOverlay')) closePreview();
+  });
+
+  // ── Submit Post (new or update) ──
+  async function submitPost() {
+    const title    = document.getElementById('postTitle').value.trim();
+    const tag      = document.getElementById('postTag').value.trim();
+    const excerpt  = document.getElementById('postExcerpt').value.trim();
+    const bodyEl   = document.getElementById('postBody');
+
+    bodyEl.querySelectorAll('.img-delete-btn').forEach(btn => btn.remove());
+
+    const body     = bodyEl.innerHTML.trim();
+    const bodyText = bodyEl.innerText.trim();
+
+    if (!title || !bodyText) { showToast('Please add a title and content.'); return; }
+
+    if (editingPostId) {
+      // UPDATE existing post
+      const { error } = await sb.from('posts').update({
+        title,
+        tag: tag || 'General',
+        excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
+        body
+      }).eq('id', editingPostId);
+
+      if (error) { showToast('Error updating post: ' + error.message); return; }
+      showToast('Post updated!');
+    } else {
+      // INSERT new post
+      const { error } = await sb.from('posts').insert([{
+        title,
+        tag: tag || 'General',
+        excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
+        body,
+        user_id: currentUser.id
+      }]);
+
+      if (error) { showToast('Error saving post: ' + error.message); return; }
+      localStorage.removeItem('biosignal_draft');
+      showToast('Post published!');
+    }
+
+    cancelForm();
+    loadPosts();
+  }
+  let allPosts = [];
+  let activeTag = 'All';
+
+  function showSkeletons() {
+    const list = document.getElementById('postsList');
+    list.querySelectorAll('.post-list-item, .skeleton-item').forEach(e => e.remove());
+    for (let i = 0; i < 4; i++) {
+      const sk = document.createElement('div');
+      sk.className = 'skeleton-item';
+      sk.innerHTML = `
+        <div class="skeleton skeleton-tag"></div>
+        <div class="skeleton ${i % 2 === 0 ? 'skeleton-title' : 'skeleton-title-short'}"></div>
+        <div class="skeleton skeleton-excerpt"></div>
+        <div class="skeleton skeleton-excerpt-short"></div>
+        <div class="skeleton skeleton-meta"></div>`;
+      list.appendChild(sk);
+    }
+  }
+
   async function loadPosts() {
-    document.getElementById('postsLoading').style.display = 'block';
     document.getElementById('postsEmpty').style.display = 'none';
-    document.querySelectorAll('.post-list-item').forEach(e => e.remove());
+    document.getElementById('postsLoading').style.display = 'none';
+    showSkeletons();
 
     const { data, error } = await sb.from('posts').select('*').order('created_at', { ascending: false });
 
-    document.getElementById('postsLoading').style.display = 'none';
+    document.querySelectorAll('.skeleton-item').forEach(e => e.remove());
 
     if (error) { showToast('Error loading posts.'); return; }
     if (!data || data.length === 0) { document.getElementById('postsEmpty').style.display = 'block'; return; }
+
+    allPosts = data;
+    activeTag = 'All';
+    buildTagFilter(data);
     renderPosts(data);
+  }
+
+  // ── Back to top scroll listener ──
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('backToTop');
+    if (window.scrollY > 400) { btn.classList.add('visible'); }
+    else { btn.classList.remove('visible'); }
+  });
+
+  // ── Build tag filter bar from loaded posts ──
+  function buildTagFilter(posts) {
+    const bar = document.getElementById('tagFilterBar');
+    const tags = ['All', ...new Set(posts.map(p => p.tag || 'General'))];
+    bar.innerHTML = '';
+    tags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'tag-filter-btn' + (tag === 'All' ? ' active' : '');
+      btn.textContent = tag;
+      btn.onclick = () => filterByTag(tag);
+      bar.appendChild(btn);
+    });
+    bar.style.display = tags.length > 2 ? 'flex' : 'none';
+  }
+
+  // ── Filter posts by tag ──
+  function filterByTag(tag) {
+    activeTag = tag;
+    document.querySelectorAll('.tag-filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent === tag);
+    });
+    const filtered = tag === 'All' ? allPosts : allPosts.filter(p => (p.tag || 'General') === tag);
+    const noneEl = document.getElementById('tagFilterNone');
+    if (filtered.length === 0) {
+      noneEl.style.display = 'block';
+      document.querySelectorAll('.post-list-item').forEach(e => e.remove());
+    } else {
+      noneEl.style.display = 'none';
+      renderPosts(filtered);
+    }
   }
 
   // ── Render Posts — same structure as your working file ──
@@ -512,14 +822,20 @@
           <p class="post-list-meta">${date}</p>
         </div>
         <div class="post-list-right">
+          ${currentUser ? `<button class="post-edit-btn" title="Edit">✏️</button>` : ''}
           ${currentUser ? `<button class="post-delete-btn" title="Delete">🗑️</button>` : ''}
           <span class="post-list-arrow">→</span>
         </div>`;
       item.onclick = (e) => {
         if (e.target.closest('.post-delete-btn')) return;
+        if (e.target.closest('.post-edit-btn')) return;
         openPost(post);
       };
       if (currentUser) {
+        item.querySelector('.post-edit-btn').onclick = (e) => {
+          e.stopPropagation();
+          openEditForm(post);
+        };
         item.querySelector('.post-delete-btn').onclick = (e) => {
           e.stopPropagation();
           deletePost(post.id);
@@ -527,36 +843,6 @@
       }
       list.appendChild(item);
     });
-  }
-
-  // ── Submit Post ──
-  async function submitPost() {
-    const title    = document.getElementById('postTitle').value.trim();
-    const tag      = document.getElementById('postTag').value.trim();
-    const excerpt  = document.getElementById('postExcerpt').value.trim();
-    const bodyEl   = document.getElementById('postBody');
-    const body     = bodyEl.innerHTML.trim();
-    const bodyText = bodyEl.innerText.trim();
-
-    if (!title || !bodyText) { showToast('Please add a title and content.'); return; }
-
-    const { error } = await sb.from('posts').insert([{
-      title,
-      tag: tag || 'General',
-      excerpt: excerpt || bodyText.substring(0, 130) + (bodyText.length > 130 ? '...' : ''),
-      body,
-      user_id: currentUser.id
-    }]);
-
-    if (error) { showToast('Error saving post: ' + error.message); return; }
-
-    showToast('Post published!');
-    document.getElementById('postTitle').value = '';
-    document.getElementById('postTag').value = '';
-    document.getElementById('postExcerpt').value = '';
-    document.getElementById('postBody').innerHTML = '';
-    document.getElementById('postForm').classList.remove('open');
-    loadPosts();
   }
 
   // ── Delete Post ──
@@ -569,12 +855,19 @@
   }
 
   // ── Open / Close Single Post — identical to your working file ──
+  // CHANGE 2: Strip img-delete-btn from rendered post body for non-admin visitors
   function openPost(post) {
     const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
     document.getElementById('singleTag').textContent   = post.tag || 'General';
     document.getElementById('singleTitle').textContent = post.title;
     document.getElementById('singleMeta').textContent  = date;
-    document.getElementById('singleBody').innerHTML    = post.body;
+
+    const bodyEl = document.getElementById('singleBody');
+    bodyEl.innerHTML = post.body;
+
+    if (!currentUser) {
+      bodyEl.querySelectorAll('.img-delete-btn').forEach(btn => btn.remove());
+    }
 
     document.getElementById('postSingle').classList.add('open');
     document.getElementById('postsList').style.display   = 'none';
@@ -598,6 +891,8 @@
     document.execCommand(cmd, false, value);
   }
   function triggerImageUpload() { document.getElementById('imageUploadInput').click(); }
+
+  // CHANGE 3: Only insert the remove button when logged in as admin
   function insertImage(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -608,7 +903,7 @@
       document.execCommand('insertHTML', false,
         `<span class="post-img-wrap" id="${imgId}" contenteditable="false">
           <img src="${e.target.result}" style="max-width:100%;border-radius:4px;display:block;margin:1rem 0;"/>
-          <button class="img-delete-btn" onclick="removeImage('${imgId}')">✕ Remove</button>
+          ${currentUser ? `<button class="img-delete-btn" onclick="removeImage('${imgId}')">✕ Remove</button>` : ''}
         </span><br/>`
       );
     };
@@ -617,7 +912,26 @@
   }
   function removeImage(id) { const el = document.getElementById(id); if (el) el.remove(); }
 
+  // ── Dark Mode ──
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (saved === 'dark' || (!saved && prefersDark)) {
+      document.documentElement.classList.add('dark');
+      document.getElementById('themeToggle').textContent = '☀️';
+    } else {
+      document.getElementById('themeToggle').textContent = '🌙';
+    }
+  }
+
   // ── Init ──
+  initTheme();
   checkSession();
 </script>
 </body>
