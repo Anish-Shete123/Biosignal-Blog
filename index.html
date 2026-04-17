@@ -162,6 +162,18 @@
     .post-single-body { font-size:1rem; line-height:1.85; color:var(--ink); }
     .post-single-body img { max-width:100%; border-radius:4px; margin:1rem 0; display:block; }
 
+    /* TABLE OF CONTENTS */
+    .toc-wrap { background:var(--accent-light); border-left:3px solid var(--accent); border-radius:0 2px 2px 0; padding:1.25rem 1.5rem; margin-bottom:3rem; display:none; }
+    .toc-wrap.show { display:block; }
+    .toc-label { font-size:0.68rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:0.75rem; display:block; }
+    .toc-list { list-style:none; display:flex; flex-direction:column; gap:0.3rem; }
+    .toc-list li a { text-decoration:none; color:var(--ink); font-size:0.88rem; line-height:1.4; transition:color 0.2s; display:block; }
+    .toc-list li a:hover { color:var(--accent); }
+    .toc-list li.toc-h2 { padding-left:0; }
+    .toc-list li.toc-h3 { padding-left:1rem; }
+    .toc-list li.toc-h3 a { color:var(--muted); font-size:0.82rem; }
+    .toc-list li.toc-h3 a:hover { color:var(--accent); }
+
     /* ABOUT */
     .about-grid { display:grid; grid-template-columns:1fr 1fr; min-height:calc(100vh - 64px); }
     .about-visual { background:var(--ink); display:flex; align-items:center; justify-content:center; min-height:400px; position:relative; overflow:hidden; }
@@ -411,6 +423,10 @@
     <span class="post-single-tag" id="singleTag"></span>
     <h1 class="post-single-title" id="singleTitle"></h1>
     <p class="post-single-meta" id="singleMeta"></p>
+    <div class="toc-wrap" id="tocWrap">
+      <span class="toc-label">Contents</span>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
     <div class="post-single-body" id="singleBody"></div>
   </div>
 
@@ -801,6 +817,13 @@
     }
   }
 
+  // ── Reading time estimate ──
+  function readingTime(body) {
+    const text = body ? body.replace(/<[^>]*>/g, '') : '';
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    return Math.max(1, Math.ceil(words / 200)) + ' min read';
+  }
+
   // ── Render Posts — same structure as your working file ──
   function renderPosts(posts) {
     const list  = document.getElementById('postsList');
@@ -812,6 +835,7 @@
 
     posts.forEach(post => {
       const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+      const readTime = readingTime(post.body);
       const item = document.createElement('div');
       item.className = 'post-list-item';
       item.innerHTML = `
@@ -819,7 +843,7 @@
           <span class="post-list-tag">${post.tag || 'General'}</span>
           <h3 class="post-list-title">${post.title}</h3>
           <p class="post-list-excerpt">${post.excerpt || ''}</p>
-          <p class="post-list-meta">${date}</p>
+          <p class="post-list-meta">${date} · ${readTime}</p>
         </div>
         <div class="post-list-right">
           ${currentUser ? `<button class="post-edit-btn" title="Edit">✏️</button>` : ''}
@@ -854,13 +878,13 @@
     loadPosts();
   }
 
-  // ── Open / Close Single Post — identical to your working file ──
-  // CHANGE 2: Strip img-delete-btn from rendered post body for non-admin visitors
+  // ── Open / Close Single Post ──
   function openPost(post) {
     const date = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    const readTime = readingTime(post.body);
     document.getElementById('singleTag').textContent   = post.tag || 'General';
     document.getElementById('singleTitle').textContent = post.title;
-    document.getElementById('singleMeta').textContent  = date;
+    document.getElementById('singleMeta').textContent  = date + ' · ' + readTime;
 
     const bodyEl = document.getElementById('singleBody');
     bodyEl.innerHTML = post.body;
@@ -868,6 +892,8 @@
     if (!currentUser) {
       bodyEl.querySelectorAll('.img-delete-btn').forEach(btn => btn.remove());
     }
+
+    buildTOC(bodyEl);
 
     document.getElementById('postSingle').classList.add('open');
     document.getElementById('postsList').style.display   = 'none';
@@ -877,12 +903,46 @@
     window.scrollTo({ top:0, behavior:'smooth' });
   }
 
+  // ── Build Table of Contents from post headings ──
+  function buildTOC(bodyEl) {
+    const tocWrap = document.getElementById('tocWrap');
+    const tocList = document.getElementById('tocList');
+    tocList.innerHTML = '';
+
+    const headings = bodyEl.querySelectorAll('h1, h2, h3');
+    if (headings.length < 2) { tocWrap.classList.remove('show'); return; }
+
+    headings.forEach((heading, i) => {
+      const id = 'toc-heading-' + i;
+      heading.id = id;
+
+      const tag = heading.tagName.toLowerCase();
+      const li  = document.createElement('li');
+      li.className = tag === 'h3' ? 'toc-h3' : 'toc-h2';
+
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = heading.textContent;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+
+    tocWrap.classList.add('show');
+  }
+
   function closePost() {
     document.getElementById('postSingle').classList.remove('open');
     document.getElementById('postsList').style.display   = '';
     document.getElementById('postsHeader').style.display = '';
     document.getElementById('postForm').style.display    = '';
     document.getElementById('postsFooter').style.display = '';
+    document.getElementById('tocWrap').classList.remove('show');
+    document.getElementById('tocList').innerHTML = '';
   }
 
   // ── Rich Editor ──
